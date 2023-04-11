@@ -5,16 +5,17 @@ using UnityEngine;
 
 public class CharMove : MonoBehaviour
 {
-    public static CharMove CurrentPC;
+public static CharMove CurrentPC;
 public  float CharSpeed,xSpeed;
 public float limitX;                   
 private  float _CurrentCharSpeed;
     
 public GameObject RCylinderPref;
-    public List<Cylinder> Cylinders;
+public List<Cylinder> Cylinders;
+
 
     void Start()
-    {   // bu scriptin referansýný CurrentPC e ata
+    {   // bu scriptin referansýný CurrentPC e ata     
         CurrentPC = this;
         _CurrentCharSpeed = CharSpeed;
 
@@ -46,7 +47,7 @@ public GameObject RCylinderPref;
         if (other.tag == "AddCylinder")
         {
             CIncrementCylinder(0.2f);
-            Destroy(other.gameObject);      // gameobject olmadan çalýþýo mu dene
+            Destroy(other.gameObject);      
 
         }
     }
@@ -68,13 +69,23 @@ public GameObject RCylinderPref;
         }
 
     }
-    private void CreateCylinder(float val) {
+    public void CreateCylinder(float val) {
         // silindir oluþtur ve cilindir script listesine ekle 
         Cylinder createdCylinder = Instantiate(RCylinderPref,transform).GetComponent<Cylinder>();
         Cylinders.Add(createdCylinder);
         // silindirin scriptinin içindeki haci marttýrma fonksiyonun çalýþtýr.
         createdCylinder.IncrementCylinderVolume(val);
     }                                                            
+    // silindir yok et
+    public void DestroyCylinder(Cylinder cylinder){
+        Cylinders.Remove(cylinder);
+        Destroy(cylinder.gameObject);
+        
+    }
+
 }
-// silindir olutþruma fonksiyonu
+
+
+
+
 
