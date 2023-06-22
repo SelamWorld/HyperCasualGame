@@ -1,17 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CharMove : MonoBehaviour
 {
-public static CharMove CurrentPC;
-public  float CharSpeed,xSpeed;
-public float limitX;                   
-private  float _CurrentCharSpeed;
     
-public GameObject RCylinderPref;
-public List<Cylinder> Cylinders;
+
+    public static CharMove CurrentPC;
+    public  float CharSpeed,xSpeed;
+    public float limitX;                   
+    private  float _CurrentCharSpeed;
+   
+    private BridgeSpawner _BridgeSpawner;
+    private bool _IfSpawn;
+    private float _BridgeSpawnTimer;
+   
+    public GameObject RCylinderPref,BridgePiecePref;
+    public List<Cylinder> Cylinders;
 
 
     void Start()
@@ -40,15 +47,33 @@ public List<Cylinder> Cylinders;
         // caharacter movement
         Vector3 NewPosition = new Vector3(newX,transform.position.y,transform.position.z+_CurrentCharSpeed*Time.deltaTime);
         transform.position = NewPosition;
+
+        if (_BridgeSpawner)
+        {
+            _BridgeSpawnTimer -= Time.deltaTime;
+            if (_BridgeSpawnTimer < 0) { 
+                _BridgeSpawnTimer = 0.1f;
+                CIncrementCylinder(-0.1f);
+
+            }
+        }
     }
     // bloklara deðdikçe silindirin hacmini arttýr
     private void OnTriggerEnter(Collider other)
-    {
+    {                                                                       
         if (other.tag == "AddCylinder")
         {
-            CIncrementCylinder(0.2f);
+            CIncrementCylinder(0.1f);
             Destroy(other.gameObject);      
 
+        }
+        else if(other.tag == "StartBridge")
+        {
+            StartSpawnBridge(other.transform.parent.GetComponent<BridgeSpawner>());
+        }                                               
+        else if(other.tag== "EndBridge")
+        {
+            StopSpawnBridge();
         }
     }
     // silindiri arttýr
@@ -69,6 +94,13 @@ public List<Cylinder> Cylinders;
         }
 
     }
+
+    private void OnTriggerStay(Collider other) {
+        if(other.tag=="Trap"){
+            CIncrementCylinder(-Time.deltaTime);
+        }
+        
+    }
     public void CreateCylinder(float val) {
         // silindir oluþtur ve cilindir script listesine ekle 
         Cylinder createdCylinder = Instantiate(RCylinderPref,transform).GetComponent<Cylinder>();
@@ -82,7 +114,18 @@ public List<Cylinder> Cylinders;
         Destroy(cylinder.gameObject);
         
     }
+    // köprü spawnlama 
+    public void StartSpawnBridge(BridgeSpawner Spawner) {
+        _BridgeSpawner = Spawner;
+        _IfSpawn = true;
 
+    }
+    // köprü yok etme
+    public void StopSpawnBridge()
+    {
+        _IfSpawn = false;
+    }
+                      
 }
 
 
